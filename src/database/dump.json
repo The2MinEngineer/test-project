@@ -1,0 +1,14 @@
+[
+  {
+    "id": "1",
+    "name": "Ifeanyi Emmanuel",
+    "sector": "Bedroom",
+    "agreeToTerms": true
+  },
+  {
+    "id": "2",
+    "name": "Ifeanyi",
+    "sector": "Beverages",
+    "agreeToTerms": true
+  }
+]

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Form.css';
@@ -10,6 +10,7 @@ const Form = () => {
   const [sector, setSector] = useState('');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [error, setError] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const navigate = useNavigate();
 
@@ -30,13 +31,28 @@ const Form = () => {
       .then((res) => {
         if (res.status === 201) {
           const createdUserId = res.data.id;
-          navigate(`/edit-form/${createdUserId}`);
+          setSuccessMessage('Your data has been stored in the database.');
+          setTimeout(() => {
+            navigate(`/edit-form/${createdUserId}`);
+          }, 5000);
         } else {
           console.log('Request was not successful');
         }
       })
       .catch((err) => console.log(err));
   }
+
+  useEffect(() => {
+    if (successMessage) {
+      const timeoutId = setTimeout(() => {
+        setSuccessMessage('');
+      }, 2000);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [successMessage]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -91,6 +107,10 @@ const Form = () => {
         <p className="error">Agree to Terms to proceed!</p>
       ) : (
         ''
+      )}
+
+      {successMessage && (
+        <div className="success-message">{successMessage}</div>
       )}
 
       <button type="submit">Save</button>
