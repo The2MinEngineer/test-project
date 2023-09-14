@@ -86,6 +86,9 @@ const EditForm = () => {
           value={sector}
           onChange={(event) => setSector(event.target.value)}
         >
+          <option value="" disabled>
+            Select a sector
+          </option>
           {Sectors.map((sectorItem) => (
             <option key={sectorItem.value} value={sectorItem.value}>
               {sectorItem.label}
