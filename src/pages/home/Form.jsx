@@ -1,48 +1,51 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Form.css';
 
 import Sectors from '../../database/Sector';
+import { createUser } from '../../services/apiService';
 
 const Form = () => {
-  const [name, setName] = useState('');
-  const [sector, setSector] = useState('');
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    sector: '',
+    agreeToTerms: false,
+  });
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  const handleInputChange = (event) => {
+    const { name, value, type, checked } = event.target;
+    const inputValue = type === 'checkbox' ? checked : value;
+    setFormData({ ...formData, [name]: inputValue });
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (name.length <= 3 || sector.length === 0 || agreeToTerms === false) {
+    if (
+      formData.name.length <= 3 ||
+      formData.sector.length === 0 ||
+      !formData.agreeToTerms
+    ) {
       setError(true);
       return;
     }
 
     setLoading(true);
 
-    axios
-      .post('https://6500c6f418c34dee0cd5653c.mockapi.io/users', {
-        name: name,
-        sector: sector,
-        agreeToTerms: agreeToTerms,
-      })
-      .then((res) => {
-        if (res.status === 201) {
-          const createdUserId = res.data.id;
-          setTimeout(() => {
-            setLoading(false);
-            navigate(`/edit-form/${createdUserId}`);
-          }, 2000);
-        } else {
-          console.log('Request was not successful');
-        }
-      })
-      .catch((err) => console.log(err));
-  }
+    try {
+      const createdUser = await createUser(formData);
+
+      setLoading(false);
+      navigate(`/edit-form/${createdUser.id}`);
+    } catch (error) {
+      console.error('Request was not successful', error);
+      setLoading(false);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -57,21 +60,21 @@ const Form = () => {
           type="text"
           placeholder="Name"
           name="name"
-          onChange={(event) => setName(event.target.value)}
+          value={formData.name}
+          onChange={handleInputChange}
         />
       </div>
-      {error && name.length <= 3 ? (
+      {error && formData.name.length <= 3 ? (
         <p className="error">Characters must be more than 3!</p>
       ) : (
         ''
       )}
-
       <div className="inputs">
         <label>Sectors</label>
         <select
           name="sector"
-          value={sector}
-          onChange={(event) => setSector(event.target.value)}
+          value={formData.sector}
+          onChange={handleInputChange}
         >
           <option value="" disabled>
             Select a sector
@@ -83,7 +86,7 @@ const Form = () => {
           ))}
         </select>
       </div>
-      {error && sector.length === 0 ? (
+      {error && formData.sector.length === 0 ? (
         <p className="error">You must select one!</p>
       ) : (
         ''
@@ -92,12 +95,13 @@ const Form = () => {
       <div className="inputs-checkbox">
         <input
           type="checkbox"
-          name="agreetoterms"
-          onChange={(event) => setAgreeToTerms(event.target.checked)}
+          name="agreeToTerms"
+          checked={formData.agreeToTerms}
+          onChange={handleInputChange}
         />
         <label>Agree to Terms</label>
       </div>
-      {error && agreeToTerms === false ? (
+      {error && !formData.agreeToTerms ? (
         <p className="error">Agree to Terms to proceed!</p>
       ) : (
         ''

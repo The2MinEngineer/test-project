@@ -1,50 +1,64 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './EditForm.css';
 
 import Sectors from '../../database/Sector';
+import { updateUser, fetchUserData } from '../../services/apiService';
 
 const EditForm = () => {
-  const [name, setName] = useState('');
-  const [sector, setSector] = useState('');
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const { id } = useParams();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    sector: '',
+    agreeToTerms: false,
+  });
+
   const [error, setError] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const { id } = useParams();
-
   useEffect(() => {
-    axios
-      .get(`https://6500c6f418c34dee0cd5653c.mockapi.io/users/${id}`)
-      .then((res) => {
-        setName(res.data.name);
-        setSector(res.data.sector);
-        setAgreeToTerms(res.data.agreeToTerms);
-      })
-      .catch((err) => console.log(err));
+    const getUserData = async () => {
+      try {
+        const userData = await fetchUserData(id);
+        setFormData({
+          name: userData.name,
+          sector: userData.sector,
+          agreeToTerms: userData.agreeToTerms,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getUserData();
   }, [id]);
 
-  const handleSubmit = (event) => {
+  const handleInputChange = (event) => {
+    const { name, value, type, checked } = event.target;
+    const inputValue = type === 'checkbox' ? checked : value;
+    setFormData({ ...formData, [name]: inputValue });
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (name.length <= 3 || sector.length === 0 || agreeToTerms === false) {
+    if (
+      formData.name.length <= 3 ||
+      formData.sector.length === 0 ||
+      !formData.agreeToTerms
+    ) {
       setError(true);
       return;
     }
 
-    axios
-      .put(`https://6500c6f418c34dee0cd5653c.mockapi.io/users/${id}`, {
-        name: name,
-        sector: sector,
-        agreeToTerms: agreeToTerms,
-      })
-      .then((res) => {
-        if (res.status === 200) {
-          setSuccessMessage('User data updated successfully.');
-        }
-      })
-      .catch((err) => console.log(err));
+    try {
+      await updateUser(id, formData);
+
+      setSuccessMessage('User data updated successfully.');
+    } catch (error) {
+      console.error('Request was not successful', error);
+    }
   };
 
   useEffect(() => {
@@ -69,11 +83,11 @@ const EditForm = () => {
           type="text"
           placeholder="Name"
           name="name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
+          value={formData.name}
+          onChange={handleInputChange}
         />
       </div>
-      {error && name.length <= 3 ? (
+      {error && formData.name.length <= 3 ? (
         <p className="error">Characters must be more than 3!</p>
       ) : (
         ''
@@ -83,8 +97,8 @@ const EditForm = () => {
         <label>Sectors</label>
         <select
           name="sector"
-          value={sector}
-          onChange={(event) => setSector(event.target.value)}
+          value={formData.sector}
+          onChange={handleInputChange}
         >
           <option value="" disabled>
             Select a sector
@@ -96,7 +110,7 @@ const EditForm = () => {
           ))}
         </select>
       </div>
-      {error && sector.length === 0 ? (
+      {error && formData.sector.length === 0 ? (
         <p className="error">You must select one!</p>
       ) : (
         ''
@@ -105,13 +119,13 @@ const EditForm = () => {
       <div className="inputs-checkbox">
         <input
           type="checkbox"
-          name="agreetoterms"
-          checked={agreeToTerms}
-          onChange={(event) => setAgreeToTerms(event.target.checked)}
+          name="agreeToTerms"
+          checked={formData.agreeToTerms}
+          onChange={handleInputChange}
         />
         <label>Agree to Terms</label>
       </div>
-      {error && agreeToTerms === false ? (
+      {error && !formData.agreeToTerms ? (
         <p className="error">Agree to Terms to proceed!</p>
       ) : (
         ''
