@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_BASE_URL = 'https://6500c6f418c34dee0cd5653c.mockapi.io/users';
+// const API_BASE_URL = 'https://test-project-backend-the2minengineer.onrender.com/api/users';
 
 export const createUser = async (data) => {
   try {

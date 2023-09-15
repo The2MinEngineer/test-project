@@ -79,12 +79,18 @@ const Form = () => {
           <option value="" disabled>
             Select a sector
           </option>
-          {Sectors.map((sectorItem) => (
-            <option key={sectorItem.value} value={sectorItem.value}>
-              {sectorItem.label}
-            </option>
-          ))}
+          {Sectors.map(
+            (
+              sectorItem,
+              index, // Use index as the key
+            ) => (
+              <option key={index} value={sectorItem.value}>
+                {sectorItem.label}
+              </option>
+            ),
+          )}
         </select>
+        {/*  */}
       </div>
       {error && formData.sector.length === 0 ? (
         <p className="error">You must select one!</p>
@@ -108,7 +114,7 @@ const Form = () => {
       )}
 
       <button type="submit" disabled={loading}>
-        {loading ? 'Loading...' : 'Save'}
+        {loading ? 'Saving...' : 'Save'}
       </button>
     </form>
   );

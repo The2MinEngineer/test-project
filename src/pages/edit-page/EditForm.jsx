@@ -103,11 +103,16 @@ const EditForm = () => {
           <option value="" disabled>
             Select a sector
           </option>
-          {Sectors.map((sectorItem) => (
-            <option key={sectorItem.value} value={sectorItem.value}>
-              {sectorItem.label}
-            </option>
-          ))}
+          {Sectors.map(
+            (
+              sectorItem,
+              index, // Use index as the key
+            ) => (
+              <option key={index} value={sectorItem.value}>
+                {sectorItem.label}
+              </option>
+            ),
+          )}
         </select>
       </div>
       {error && formData.sector.length === 0 ? (
