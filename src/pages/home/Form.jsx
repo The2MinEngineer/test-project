@@ -7,7 +7,7 @@ import { createUser } from '../../services/apiService';
 
 const Form = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     sector: '',
     agreeToTerms: false,
   });
@@ -26,7 +26,7 @@ const Form = () => {
     event.preventDefault();
 
     if (
-      formData.name.length <= 3 ||
+      formData.fullName.length <= 3 ||
       formData.sector.length === 0 ||
       !formData.agreeToTerms
     ) {
@@ -38,9 +38,10 @@ const Form = () => {
 
     try {
       const createdUser = await createUser(formData);
-
       setLoading(false);
-      navigate(`/edit-form/${createdUser.id}`);
+      const userId = createdUser._id;
+      localStorage.setItem('userId', userId);
+      navigate(`/edit-form/${userId}`);
     } catch (error) {
       console.error('Request was not successful', error);
       setLoading(false);
@@ -59,12 +60,12 @@ const Form = () => {
         <input
           type="text"
           placeholder="Name"
-          name="name"
-          value={formData.name}
+          name="fullName"
+          value={formData.fullName}
           onChange={handleInputChange}
         />
       </div>
-      {error && formData.name.length <= 3 ? (
+      {error && formData.fullName.length <= 3 ? (
         <p className="error">Characters must be more than 3!</p>
       ) : (
         ''
@@ -79,18 +80,12 @@ const Form = () => {
           <option value="" disabled>
             Select a sector
           </option>
-          {Sectors.map(
-            (
-              sectorItem,
-              index, // Use index as the key
-            ) => (
-              <option key={index} value={sectorItem.value}>
-                {sectorItem.label}
-              </option>
-            ),
-          )}
+          {Sectors.map((sectorItem, index) => (
+            <option key={index} value={sectorItem.value}>
+              {sectorItem.label}
+            </option>
+          ))}
         </select>
-        {/*  */}
       </div>
       {error && formData.sector.length === 0 ? (
         <p className="error">You must select one!</p>

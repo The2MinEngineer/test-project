@@ -9,7 +9,7 @@ const EditForm = () => {
   const { id } = useParams();
 
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     sector: '',
     agreeToTerms: false,
   });
@@ -19,15 +19,20 @@ const EditForm = () => {
 
   useEffect(() => {
     const getUserData = async () => {
+      if (!id) {
+        console.error('User ID is undefined.');
+        return;
+      }
+
       try {
         const userData = await fetchUserData(id);
         setFormData({
-          name: userData.name,
+          fullName: userData.fullName,
           sector: userData.sector,
           agreeToTerms: userData.agreeToTerms,
         });
       } catch (error) {
-        console.log(error);
+        console.error('Error fetching user data:', error);
       }
     };
 
@@ -44,7 +49,7 @@ const EditForm = () => {
     event.preventDefault();
 
     if (
-      formData.name.length <= 3 ||
+      formData.fullName.length <= 3 ||
       formData.sector.length === 0 ||
       !formData.agreeToTerms
     ) {
@@ -82,12 +87,12 @@ const EditForm = () => {
         <input
           type="text"
           placeholder="Name"
-          name="name"
-          value={formData.name}
+          name="fullName"
+          value={formData.fullName}
           onChange={handleInputChange}
         />
       </div>
-      {error && formData.name.length <= 3 ? (
+      {error && formData.fullName.length <= 3 ? (
         <p className="error">Characters must be more than 3!</p>
       ) : (
         ''
@@ -103,16 +108,11 @@ const EditForm = () => {
           <option value="" disabled>
             Select a sector
           </option>
-          {Sectors.map(
-            (
-              sectorItem,
-              index, // Use index as the key
-            ) => (
-              <option key={index} value={sectorItem.value}>
-                {sectorItem.label}
-              </option>
-            ),
-          )}
+          {Sectors.map((sectorItem, index) => (
+            <option key={index} value={sectorItem.value}>
+              {sectorItem.label}
+            </option>
+          ))}
         </select>
       </div>
       {error && formData.sector.length === 0 ? (
