@@ -1,3 +1,22 @@
+.overall-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+}
+
+.information {
+  max-width: 360px;
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+}
+
+.information h1 {
+  font-size: 20px;
+  color: rgb(78, 8, 78);
+}
+
 form {
   background-color: white;
   padding: 0px 60px;
@@ -67,6 +86,14 @@ button {
 }
 
 @media (max-width: 768px) {
+  .overall-container {
+    flex-direction: column;
+  }
+
+  .information {
+    width: 100%;
+  }
+
   form {
     padding: 0px 20px;
     max-width: 100%;
